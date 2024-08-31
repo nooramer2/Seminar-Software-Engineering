@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code to AST and Explanation</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+  <h1>Code to AST and Explanation</h1>
+  <div class="container">
+
+    <!-- Dropdown for selecting code samples -->
+    <label for="codeSamples">Choose a code sample:</label>
+    <select id="codeSamples">
+      <!-- Options will be populated dynamically -->
+    </select>
+    <button id="fetchSamplesButton">Fetch Samples</button>
+
+    <textarea id="codeInput" placeholder="Enter your code here..."></textarea>
+    <button id="processButton">Process Code</button>
+
+    <div id="output">
+      <h2>Code Explanation</h2>
+      <pre id="explanationOutput"></pre>
+      <h2>AST Graph - Tree-sitter</h2>
+      <svg id="astGraphTreeSitter" width="1080" height="700"></svg>
+
+      <div class="button-center">
+        <button id="generateGptAstButton">Generate GPT AST</button>
+      </div>
+
+      <h2>AST Graph - GPT-3.5</h2>
+      <svg id="astGraphGPT" width="1080" height="700"></svg>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("fetchSamplesButton").addEventListener("click", fetchCodeSamples);
+    });
+
+    function fetchCodeSamples() {
+      console.log("Fetching code samples...");
+      fetch('/codesamples')
+        .then(response => response.json())
+        .then(data => {
+          const codeSamplesDropdown = document.getElementById('codeSamples');
+          codeSamplesDropdown.innerHTML = '';
+          data.forEach((item, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.text = item.identifier;
+            codeSamplesDropdown.add(option);
+          });
+
+          codeSamplesDropdown.addEventListener('change', function () {
+            const selectedSample = data[this.value].code;
+            document.getElementById('codeInput').value = selectedSample;
+          });
+        })
+        .catch(error => console.error('Error fetching code samples:', error));
+    }
+
+    document.getElementById("processButton").addEventListener("click", () => {
+      const code = document.getElementById("codeInput").value;
+      fetch("/process", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Response data:", data);
+          if (data.error) {
+            console.error("Error:", data.error);
+          } else {
+            document.getElementById("explanationOutput").textContent = data.explanation;
+            drawAst(data.treeSitterAst, "#astGraphTreeSitter");
+            drawAst(data.gptAst, "#astGraphGPT");
+          }
+        })
+        .catch((error) => console.error("Fetch error:", error));
+    });
+
+    function drawAst(ast, svgId) {
+      if (!ast || !ast.children) {
+        console.error("Invalid AST structure:", ast);
+        return;
+      }
+
+      const svg = d3.select(svgId),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+
+      svg.selectAll("*").remove();
+
+      const g = svg.append("g").attr("transform", "translate(40,0)");
+
+      const tree = d3.tree().size([height, width - 160]);
+
+      const root = d3.hierarchy(ast, (d) => d.children);
+
+      const link = g
+        .selectAll(".link")
+        .data(tree(root).links())
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr(
+          "d",
+          d3
+            .linkHorizontal()
+            .x((d) => d.y)
+            .y((d) => d.x)
+        );
+
+      const node = g
+        .selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("g")
+        .attr(
+          "class",
+          (d) => "node" + (d.children ? " node--internal" : " node--leaf")
+        )
+        .attr("transform", (d) => `translate(${d.y},${d.x})`);
+
+      node.append("circle")
+        .attr("r", 10)
+        .style("fill", (d) => {
+          if (d.data.type === "function_declaration" || d.data.type === "FunctionDeclaration") return "red";
+          if (d.data.type === "identifier" || d.data.type === "Identifier") return "green";
+          if (d.data.type === "statement_block" || d.data.type === "BlockStatement") return "yellow";
+          return "#999"; // Default color
+        });
+
+      node
+        .append("text")
+        .attr("dy", 3)
+        .attr("x", (d) => (d.children ? -12 : 12))
+        .style("text-anchor", (d) => (d.children ? "end" : "start"))
+        .text((d) => {
+          if (d.data.text && d.data.text.trim() !== "") {
+            return `${d.data.type}: ${d.data.text}`;
+          }
+
+          return d.data.type;
+        });
+    }
+    document.getElementById("generateGptAstButton").addEventListener("click", () => {
+      const code = document.getElementById("codeInput").value;
+      fetch("/generate-gpt-ast", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.error("Error:", data.error);
+          } else {
+            drawAst(data.gptAst, "#astGraphGPT");
+          }
+        })
+        .catch((error) => console.error("Fetch error:", error));
+    });
+
+  </script>
+</body>
+
+</html>

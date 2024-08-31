@@ -1,0 +1,55 @@
+{
+  "type": "Program",
+  "children": [
+    {
+      "type": "FunctionDeclaration",
+      "children": [
+        {
+          "type": "Identifier",
+          "children": [],
+          "text": "addNumbers"
+        },
+        {
+          "type": "Identifier",
+          "children": [],
+          "text": "a"
+        },
+        {
+          "type": "Identifier",
+          "children": [],
+          "text": "b"
+        },
+        {
+          "type": "BlockStatement",
+          "children": [
+            {
+              "type": "ReturnStatement",
+              "children": [
+                {
+                  "type": "BinaryExpression",
+                  "children": [
+                    {
+                      "type": "Identifier",
+                      "children": [],
+                      "text": "a"
+                    },
+                    {
+                      "type": "Identifier",
+                      "children": [],
+                      "text": "b"
+                    }
+                  ],
+                  "text": "+"
+                }
+              ],
+              "text": ""
+            }
+          ],
+          "text": ""
+        }
+      ],
+      "text": ""
+    }
+  ],
+  "text": ""
+}

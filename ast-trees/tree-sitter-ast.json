@@ -1,0 +1,92 @@
+{
+  "type": "program",
+  "text": "function addNumbers(a, b) {  \n    return a + b;  \n}  ",
+  "children": [
+    {
+      "type": "function_declaration",
+      "text": "function addNumbers(a, b) {  \n    return a + b;  \n}",
+      "children": [
+        {
+          "type": "function",
+          "text": "function"
+        },
+        {
+          "type": "identifier",
+          "text": "addNumbers"
+        },
+        {
+          "type": "formal_parameters",
+          "text": "(a, b)",
+          "children": [
+            {
+              "type": "(",
+              "text": "("
+            },
+            {
+              "type": "identifier",
+              "text": "a"
+            },
+            {
+              "type": ",",
+              "text": ","
+            },
+            {
+              "type": "identifier",
+              "text": "b"
+            },
+            {
+              "type": ")",
+              "text": ")"
+            }
+          ]
+        },
+        {
+          "type": "statement_block",
+          "text": "{  \n    return a + b;  \n}",
+          "children": [
+            {
+              "type": "{",
+              "text": "{"
+            },
+            {
+              "type": "return_statement",
+              "text": "return a + b;",
+              "children": [
+                {
+                  "type": "return",
+                  "text": "return"
+                },
+                {
+                  "type": "binary_expression",
+                  "text": "a + b",
+                  "children": [
+                    {
+                      "type": "identifier",
+                      "text": "a"
+                    },
+                    {
+                      "type": "+",
+                      "text": "+"
+                    },
+                    {
+                      "type": "identifier",
+                      "text": "b"
+                    }
+                  ]
+                },
+                {
+                  "type": ";",
+                  "text": ";"
+                }
+              ]
+            },
+            {
+              "type": "}",
+              "text": "}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
