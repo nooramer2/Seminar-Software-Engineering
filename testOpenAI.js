@@ -4,7 +4,7 @@ require("dotenv").config();
 async function testAPI() {
   const openAIClient = new OpenAIApi(
     new Configuration({
-      apiKey: "sk-proj-ENab6E4Eqsn9RZ2v9YmCT3BlbkFJ6LRZKvunUcRB3YJDYnor",
+      apiKey: proces.env.OPENAI_API_KEY,
     })
   );
 
